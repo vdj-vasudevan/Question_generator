@@ -1,4 +1,7 @@
 import pypdf
+from utils.read import read_pdf
+from utils.utils import Generate_MCQ
+
 class MCQ_Generator():
     def __init__(self,path):
         self.path = path
@@ -7,29 +10,8 @@ class MCQ_Generator():
         return pypdf.PdfReader(self.path)
     
     def Question_mcqs_generator(self,input_text, num_questions=2):
-        prompt = f"""
-        You are an AI assistant helping the user generate multiple-choice questions (MCQs) based on the following text:
-        '{input_text}'
-        Please generate {num_questions} MCQs from the text. Each question should have:
-        - A clear question
-        - Four answer options (labeled A, B, C, D)
-        - The correct answer clearly indicated
-        Format:
-        ## MCQ
-        Question: [question]
-        A) [option A]
-        B) [option B]
-        C) [option C]
-        D) [option D]
-        Correct Answer: [correct option]
-        """
-        response = model.generate_content(prompt).text.strip()
+        response = Generate_MCQ(input_text,num_questions)
         return response
-    
-    def split_text_by_word_count(self,text, word_limit=300):
-        words = text.split()
-        sections = [' '.join(words[i:i + word_limit]) for i in range(0, len(words), word_limit)]
-        return sections
 
     def get_mcq_collection(self):
         text = self.read_pdf()

@@ -1,4 +1,3 @@
-from read import read_pdf
 import numpy as np
 import pandas as pd
 from langchain.embeddings import HuggingFaceEmbeddings
