@@ -4,7 +4,7 @@ from phi.model.mistral import MistralChat
 
 API_KEY = os.getenv("API_KEY")
 
-def Generate_MCQ(input_text,num_questions,level="Medium"):
+def Generate_MCQ(input_text,num_questions,avalible_questions,level="Medium"):
     agent = Agent(
         model=MistralChat(
             id="mistral-large-latest",
@@ -19,12 +19,13 @@ def Generate_MCQ(input_text,num_questions,level="Medium"):
     prompt = f"""
         You are an AI assistant helping the user generate multiple-choice questions (MCQs) based on the following text:
         '{input_text}'
-        Please generate {num_questions} with Category like Easy,Medium and Hard kindly use {level} category to generate MCQs from the text. Each question should have:
+        Please generate only {num_questions} with Category like Easy,Medium and Hard kindly use {level} category to generate MCQs from the text. Each question should have:
         - A clear question
         - Four answer options (labeled A, B, C, D)
         - The correct answer clearly indicated
         Expexted output json format:        
-        """+"""[{"1":{"mcq":{"Question":"Actual Question;A)Option;B)Option;C)Option;D)Option"},{"Answer":"*)Option"}}}] """
+        """+"""[[{"Question":"Actual Question;A)Option;B)Option;C)Option;D)Option"},{"Answer":"*)Option"}]] 
+        """+f""" Skip this in the list: {avalible_questions}"""
     agent.print_response(prompt)
     output = eval(agent.get_chat_history())
     output = eval(output[1]["content"].strip("`").strip("json").strip("\n"))
