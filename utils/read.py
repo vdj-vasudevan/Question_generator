@@ -13,10 +13,14 @@ def ocr_pdf_to_text(pdf_path):
 # text = ocr_pdf_to_text(pdf_path)
 # print(text)
 
-def read_pdf(path):
+def read_pdf(path,max_pages=20):
+    if path is None:
+        return None
     reader = pypdf.PdfReader(path)
     data=[]
     for i in range(len(reader.pages)):
+        if max_pages<=i:
+            break
         data.append(reader.pages[i].extract_text())
     text = "\n".join(data)
     text = split_text_by_word_count(text)

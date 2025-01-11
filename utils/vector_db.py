@@ -4,12 +4,13 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from sklearn.metrics.pairwise import cosine_similarity
 _embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-topic = "Romeo"
+# topic = "Romeo"
 def get_vector_embedding(data):
     return _embeddings.embed_documents(data)
 
 
-def Get_data_by_topic(data,vector,topic)->pd.DataFrame:
+def Get_data_by_topic(data,vector,topics=[])->pd.DataFrame:
+    topic = " ,".join(topics[:-1])+ " and " + topics[-1] if len(topics)>1 else topics[0]
     query = f"Find details about {topic}"
     query_vector = _embeddings.embed_query(query)
     query_vector_reshaped = np.array(query_vector).reshape(1, -1)
