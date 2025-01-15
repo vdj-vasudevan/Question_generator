@@ -3,6 +3,8 @@ import pandas as pd
 from langchain.embeddings import HuggingFaceEmbeddings
 from sklearn.metrics.pairwise import cosine_similarity
 _embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+from phi.knowledge.pdf import PDFKnowledgeBase, PDFReader
+from phi.vectordb.pgvector import PgVector
 
 # topic = "Romeo"
 def get_vector_embedding(data):
@@ -29,3 +31,16 @@ def Get_data_by_topic(data,vector,topics=[])->pd.DataFrame:
     sutable_data_df = sutable_data_df.sort_values(by="similarity",ascending=False)
     return sutable_data_df.head()
 
+def Get_knowledge_base(pdf_path,db_url="postgresql+psycopg://ai:ai@localhost:5532/ai"):
+    pdf_knowledge_base = PDFKnowledgeBase(
+        path=pdf_path,
+        # Table name: ai.pdf_documents
+        vector_db=PgVector(
+            table_name="pdf_documents",
+            db_url=db_url,
+        ),
+        reader=PDFReader(chunk=True),
+    )
+
+    pdf_knowledge_base.load()
+    return pdf_knowledge_base

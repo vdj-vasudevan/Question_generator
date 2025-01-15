@@ -3,8 +3,9 @@ from phi.agent import Agent
 from phi.model.mistral import MistralChat
 
 API_KEY = os.getenv("API_KEY")
+os.environ["GROQ_API_KEY"]=os.getenv("GROQ_API_KEY")
 
-def Generate_MCQ(input_text,num_questions,avalible_questions,level="Medium"):
+def Generate_MCQ(input_text,num_questions,avalible_questions,pdf_knowledge_base,level="Medium"):
     agent = Agent(
         model=MistralChat(
             id="mistral-large-latest",
@@ -14,21 +15,23 @@ def Generate_MCQ(input_text,num_questions,avalible_questions,level="Medium"):
             instructions=["Only Use the Given input text,Dont go out of the input"],
             # debug_mode=True,
         ),
+         knowledge_base=pdf_knowledge_base,
         markdown=True
     )
     prompt = f"""
         You are an AI assistant helping the user generate multiple-choice questions (MCQs) based on the following text:
-        '{input_text}'
+        'Extrat MCQ oly from the knowledge_base and with {input_text}'
         Please generate only {num_questions} with Category like Easy,Medium and Hard kindly use {level} category to generate MCQs from the text. Each question should have:
         - A clear question
         - Four answer options (labeled A, B, C, D)
         - The correct answer clearly indicated
         Expexted output json format:        
         """+"""[[{"Question":"Actual Question;A)Option;B)Option;C)Option;D)Option"},{"Answer":"*)Option"}]] 
-        """+f""" Skip this in the list: {avalible_questions}"""
+        """
+    # +f""" Skip this in the list: {avalible_questions}"""
     agent.print_response(prompt)
     output = eval(agent.get_chat_history())
-    output = eval(output[1]["content"].strip("`").strip("json").strip("\n"))
+    output = eval(output[1]["content"].split("```")[1].strip("json").strip("\n"))
     return output
 
 
@@ -43,7 +46,7 @@ def Generate_MCQ(input_text,num_questions,avalible_questions,level="Medium"):
 # print(output_response)
 
 
-def Generate_QA_1(input_text,num_questions,level="Medium"):
+def Generate_QA_1(input_text,num_questions,pdf_knowledge_base,level="Medium"):
     agent = Agent(
         model=MistralChat(
             id="mistral-large-latest",
@@ -53,7 +56,8 @@ def Generate_QA_1(input_text,num_questions,level="Medium"):
             instructions=["Only Use the Given input text,Dont go out of the input"],
             # debug_mode=True,
         ),
-        markdown=True
+        markdown=True,
+        knowledge_base=pdf_knowledge_base
     )
     prompt = f"""
         You are an AI assistant helping the user generate questions & answer with two to three sentences each from the given text:
@@ -62,7 +66,8 @@ def Generate_QA_1(input_text,num_questions,level="Medium"):
         - A clear question
         - A clear answer with 2-3 sentences
         Expexted output json format:        
-        """+"""[{"1":"Question":"Actual Question},{"Answer":"Actual Answer"}}}] """
+        """
+    # +"""[{"1":"Question":"Actual Question},{"Answer":"Actual Answer"}}}] """
     agent.print_response(prompt)
     output = eval(agent.get_chat_history())
     output = eval(output[1]["content"].strip("`").strip("json").strip("\n"))
